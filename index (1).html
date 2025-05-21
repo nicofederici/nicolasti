@@ -1,0 +1,142 @@
+<script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Fallback
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+        </script><!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Soporte Técnico y Asesoramiento</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 font-sans">
+    <!-- Navbar -->
+    <nav class="bg-blue-600 text-white p-4 sticky top-0 shadow-md">
+        <div class="container mx-auto flex justify-between items-center">
+            <img src="logo.jpg" alt="Logo NF" class="h-12">
+            <ul class="flex space-x-6">
+                <li><a href="#inicio" class="hover:text-blue-200">Inicio</a></li>
+                <li><a href="#servicios" class="hover:text-blue-200">Servicios</a></li>
+                <li><a href="#sobre-nosotros" class="hover:text-blue-200">Sobre Nosotros</a></li>
+                <li><a href="#contacto" class="hover:text-blue-200">Contacto</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Sección Inicio -->
+    <section id="inicio" class="bg-blue-500 text-white py-20 text-center">
+        <div class="container mx-auto">
+            <img src="images/logo.png" alt="Logo NF" class="h-32 mb-6">
+            <h2 class="text-4xl font-bold mb-4">Soporte Técnico y Asesoramiento</h2>
+            <p class="text-lg mb-6">Te ayudamos a mejorar el rendimiento de tu equipo con asesoramiento confiable y personalizado.</p>
+            <a href="#contacto" class="bg-white text-blue-600 px-6 py-3 rounded-full font-semibold hover:bg-gray-200">Contáctanos</a>
+        </div>
+    </section>
+
+    <!-- Sección Servicios -->
+    <section id="servicios" class="py-16">
+        <div class="container mx-auto text-center">
+            <h2 class="text-3xl font-bold mb-8">Nuestros Servicios</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div class="bg-white p-6 rounded-lg shadow-md">
+                    <h3 class="text-xl font-semibold mb-4">Soporte Técnico</h3>
+                    <p>Reparación de computadoras, instalación de software y solución de problemas técnicos.</p>
+                </div>
+                <div class="bg-white p-6 rounded-lg shadow-md">
+                    <h3 class="text-xl font-semibold mb-4">Asesoramiento Tecnológico</h3>
+                    <p>Consultoría para optimizar tus dispositivos y procesos tecnológicos.</p>
+                </div>
+                <div class="bg-white p-6 rounded-lg shadow-md">
+                    <h3 class="text-xl font-semibold mb-4">Mantenimiento Preventivo</h3>
+                    <p>Servicios de mantenimiento para garantizar el rendimiento de tus equipos.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Sección Sobre Nosotros -->
+    <section id="sobre-nosotros" class="bg-gray-200 py-16">
+        <div class="container mx-auto text-center">
+            <h2 class="text-3xl font-bold mb-8">Sobre Nosotros</h2>
+            <p class="text-lg max-w-2xl mx-auto">Con el compromiso de ayudar a nuestros clientes a resolver sus problemas tecnológicos con soluciones rápidas y efectivas. Con mas de 20 años de experiencia en el rubro.</p>
+        </div>
+    </section>
+
+    <!-- Sección Contacto -->
+    <section id="contacto" class="py-16">
+        <div class="container mx-auto text-center">
+            <h2 class="text-3xl font-bold mb-8">Contáctanos</h2>
+            <div class="max-w-lg mx-auto">
+                <p class="mb-4">Envíanos un mensaje y te responderemos lo antes posible.</p>
+                <div class="space-y-4">
+                    <input type="text" id="nombre" placeholder="Nombre" class="w-full p-3 border rounded-lg">
+                    <input type="email" id="email" placeholder="Correo Electrónico" class="w-full p-3 border rounded-lg">
+                    <textarea id="mensaje" placeholder="Mensaje" rows="5" class="w-full p-3 border rounded-lg"></textarea>
+                    <button onclick="enviarMensaje()" class="bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700">Enviar</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-blue-600 text-white py-6">
+        <div class="container mx-auto text-center">
+            <p>© 2025 Nicolas Federici Soluciones IT. Todos los derechos reservados.</p>
+            <p class="mt-2">Tel: +54 9 3400 51 0262 | Email: nicofederici@gmail.com</p>
+        </div>
+    </footer>
+
+    <!-- JavaScript -->
+    <script>
+        function enviarMensaje() {
+            const nombre = document.getElementById('nombre').value;
+            const email = document.getElementById('email').value;
+            const mensaje = document.getElementById('mensaje').value;
+            if (nombre && email && mensaje) {
+                alert('Mensaje enviado con éxito. ¡Te contactaremos pronto!');
+                document.getElementById('nombre').value = '';
+                document.getElementById('email').value = '';
+                document.getElementById('mensaje').value = '';
+            } else {
+                alert('Por favor, completa todos los campos.');
+            }
+        }
+    </script>
+</body>
+</html>
